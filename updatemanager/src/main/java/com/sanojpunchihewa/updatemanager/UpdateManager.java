@@ -27,7 +27,7 @@ public class UpdateManager implements LifecycleObserver {
 
     private static final String TAG = "InAppUpdateManager";
 
-    private WeakReference<AppCompatActivity> mActivityWeakReference;
+    private final WeakReference<AppCompatActivity> mActivityWeakReference;
 
     private static UpdateManager instance;
 
@@ -35,12 +35,13 @@ public class UpdateManager implements LifecycleObserver {
     private int mode = FLEXIBLE;
 
     // Creates instance of the manager.
-    private AppUpdateManager appUpdateManager;
+    private final AppUpdateManager appUpdateManager;
 
     // Returns an intent object that you use to check for an update.
-    private Task<AppUpdateInfo> appUpdateInfoTask;
+    private final Task<AppUpdateInfo> appUpdateInfoTask;
 
     private FlexibleUpdateDownloadListener flexibleUpdateDownloadListener;
+    private boolean isCompleteAfterDownload =false;
 
     private UpdateManager(AppCompatActivity activity) {
         mActivityWeakReference = new WeakReference<>(activity);
@@ -62,6 +63,10 @@ public class UpdateManager implements LifecycleObserver {
         Log.d(TAG, "Set update mode to : " + strMode);
         this.mode = mode;
         return this;
+    }
+
+    public void setIsCompleteAfterDownload(boolean isCompleteAfterDownload){
+        this.isCompleteAfterDownload =isCompleteAfterDownload;
     }
 
     public void start() {
@@ -114,14 +119,10 @@ public class UpdateManager implements LifecycleObserver {
 //        }
 //    }
 
-    private InstallStateUpdatedListener listener = new InstallStateUpdatedListener() {
+    private final InstallStateUpdatedListener listener = new InstallStateUpdatedListener() {
         @Override
         public void onStateUpdate(InstallState installState) {
-            if (flexibleUpdateDownloadListener != null) {
-                flexibleUpdateDownloadListener.onDownloadStatus(installState);
-            }
             if (installState.installStatus() == InstallStatus.DOWNLOADING) {
-                Log.e(TAG, "state  downloading ");
                 long bytesDownloaded = installState.bytesDownloaded();
                 long totalBytesToDownload = installState.totalBytesToDownload();
                 if (flexibleUpdateDownloadListener != null) {
@@ -129,11 +130,15 @@ public class UpdateManager implements LifecycleObserver {
                 }
             }
             if (installState.installStatus() == InstallStatus.DOWNLOADED) {
-                Log.e(TAG, "state  downloaded ");
                 // After the update is downloaded, show a notification
                 // and request user confirmation to restart the app.
                 Log.d(TAG, "An update has been downloaded");
-                popupSnackbarForCompleteUpdate();
+                if(isCompleteAfterDownload){
+                    appUpdateManager.completeUpdate();
+                }else{
+                    popupSnackbarForCompleteUpdate();
+                }
+
             }
         }
     };
