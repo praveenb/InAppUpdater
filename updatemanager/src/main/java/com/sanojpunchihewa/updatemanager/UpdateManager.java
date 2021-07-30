@@ -255,8 +255,6 @@ public class UpdateManager implements LifecycleObserver {
 
         void onDownloadProgress(long bytesDownloaded, long totalBytes);
 
-        void onDownloadStatus(InstallState installState);
-
     }
 
     @OnLifecycleEvent(Event.ON_RESUME)
