@@ -117,7 +117,11 @@ public class UpdateManager implements LifecycleObserver {
     private InstallStateUpdatedListener listener = new InstallStateUpdatedListener() {
         @Override
         public void onStateUpdate(InstallState installState) {
+            if (flexibleUpdateDownloadListener != null) {
+                flexibleUpdateDownloadListener.onDownloadStatus(installState);
+            }
             if (installState.installStatus() == InstallStatus.DOWNLOADING) {
+                Log.e(TAG, "state  downloading ");
                 long bytesDownloaded = installState.bytesDownloaded();
                 long totalBytesToDownload = installState.totalBytesToDownload();
                 if (flexibleUpdateDownloadListener != null) {
@@ -125,6 +129,7 @@ public class UpdateManager implements LifecycleObserver {
                 }
             }
             if (installState.installStatus() == InstallStatus.DOWNLOADED) {
+                Log.e(TAG, "state  downloaded ");
                 // After the update is downloaded, show a notification
                 // and request user confirmation to restart the app.
                 Log.d(TAG, "An update has been downloaded");
@@ -244,6 +249,8 @@ public class UpdateManager implements LifecycleObserver {
     public interface FlexibleUpdateDownloadListener {
 
         void onDownloadProgress(long bytesDownloaded, long totalBytes);
+
+        void onDownloadStatus(InstallState installState);
 
     }
 
