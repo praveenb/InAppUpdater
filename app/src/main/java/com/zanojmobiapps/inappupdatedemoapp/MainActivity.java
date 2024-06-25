@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         TextView txtStalenessDays = findViewById(R.id.txt_staleness_days);
         txtFlexibleUpdateProgress = findViewById(R.id.txt_flexible_progress);
 
-        txtCurrentVersion.setText(String.valueOf(BuildConfig.VERSION_CODE));
+//        txtCurrentVersion.setText(String.valueOf(BuildConfig.VERSION_CODE));
 
         // Initialize the Update Manager with the Activity and the Update Mode
         mUpdateManager = UpdateManager.Builder(this);
